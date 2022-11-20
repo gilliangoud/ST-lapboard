@@ -1,11 +1,12 @@
+#include <esp_now.h>
+#include <WiFi.h>
 #include <TFT_eSPI.h>
 #include <SPI.h>
 #include "Button2.h"
-#include <esp_now.h>
-#include <WiFi.h>
 
 // 24:6F:28:25:2B:40 mac address of remote
-uint8_t broadcastAddress[] = { 0x30, 0xAE, 0xA4, 0x07, 0x0D, 0x64 };
+// 80:7D:3A:B7:D4:84 mac address of lapboard
+uint8_t broadcastAddress[] = { 0x80, 0x7D, 0x3A, 0xB7, 0xD4, 0x84 };
 esp_now_peer_info_t peerInfo;
 
 #define BUTTON_1 35
@@ -102,7 +103,7 @@ void OnDataSent(const uint8_t* mac_addr, esp_now_send_status_t status) {
   }
 }
 
-short number = 0;
+short number = 9;
 
 void setup(void) {
   Serial.begin(115200);
@@ -126,6 +127,7 @@ void setup(void) {
 
   // Set ESP32 as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
+  Serial.println(WiFi.channel());
 
   // Initilize ESP-NOW
   if (esp_now_init() != ESP_OK) {
@@ -137,7 +139,6 @@ void setup(void) {
   // Register the send callback
   esp_now_register_send_cb(OnDataSent);
 
-  // Register peer
   memcpy(peerInfo.peer_addr, broadcastAddress, 6);
   peerInfo.channel = 0;
   peerInfo.encrypt = false;
